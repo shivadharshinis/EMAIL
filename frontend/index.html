@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071321">
+  <title>Email Threat Intelligence</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Email Threat Intelligence home">
+        <span class="brand-mark" aria-hidden="true">ET</span>
+        <span class="brand-copy">
+          <strong>Email Threat Intelligence</strong>
+          <span>AI-Powered Email Threat Detection and Forensic Analysis</span>
+        </span>
+      </a>
+      <div class="connection-tools">
+        <div id="api-status" class="connection-pill is-checking" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="api-status-text">Checking backend…</span>
+        </div>
+        <button id="health-button" class="button button-quiet" type="button">Check backend health</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">LOCAL FORENSIC WORKSPACE</p>
+          <h1>Message analysis</h1>
+          <p class="intro-copy">Review classifier output and email evidence side by side. Signals are indicators for review, not proof of malicious activity.</p>
+        </div>
+        <div class="prototype-note">
+          <span class="info-mark" aria-hidden="true">i</span>
+          <span id="provider-health-text">Provider status pending backend health check.</span>
+        </div>
+      </section>
+
+      <section class="overview-grid" aria-label="Latest analysis overview">
+        <article class="overview-card overview-classification">
+          <span class="card-label">CLASSIFICATION</span>
+          <strong id="overview-classification" class="card-value neutral">—</strong>
+          <span id="overview-classification-note" class="card-note">Run an analysis to populate</span>
+        </article>
+        <article class="overview-card overview-priority">
+          <span class="card-label">REVIEW PRIORITY</span>
+          <strong id="overview-risk" class="card-value neutral">—</strong>
+          <span id="overview-risk-note" class="card-note">No assessment yet</span>
+        </article>
+        <article class="overview-card overview-ip">
+          <span class="card-label">EXTRACTED IP ADDRESSES</span>
+          <strong id="overview-ips" class="card-value neutral">—</strong>
+          <span class="card-note">From reported IP lookup results</span>
+        </article>
+        <article class="overview-card overview-findings">
+          <span class="card-label">REPORTED FINDINGS</span>
+          <strong id="overview-findings" class="card-value neutral">—</strong>
+          <span class="card-note">Header and local indicators</span>
+        </article>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="panel input-panel" aria-labelledby="input-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">INPUT</p>
+              <h2 id="input-title">Raw email message</h2>
+            </div>
+            <span class="privacy-tag"><span aria-hidden="true">●</span> In-memory analysis</span>
+          </div>
+          <p class="field-help">Paste the complete message, including its headers. It is sent only to the configured local backend for analysis and is not saved by this page.</p>
+          <label class="visually-hidden" for="email-input">Paste a complete raw email</label>
+          <textarea id="email-input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="From: analyst@example.test&#10;Subject: Synthetic project update&#10;Content-Type: text/plain; charset=utf-8&#10;&#10;Paste a synthetic email here…" aria-describedby="input-feedback character-counter"></textarea>
+          <div class="input-meta">
+            <span id="input-feedback" class="input-feedback" aria-live="polite">Only analyze messages you are authorized to review.</span>
+            <span id="character-counter" class="counter">0 characters · 0 B / 1 MiB</span>
+          </div>
+          <div class="button-row">
+            <button id="analyze-button" class="button button-primary" type="button">
+              <span id="analyze-label">Analyze email</span>
+              <span id="analyze-spinner" class="spinner" aria-hidden="true" hidden></span>
+            </button>
+            <button id="clear-button" class="button button-secondary" type="button">Clear results</button>
+          </div>
+          <p class="panel-footnote">Analyze only messages you are authorized to review.</p>
+        </section>
+
+        <section class="panel results-panel" aria-labelledby="results-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">ANALYSIS</p>
+              <h2 id="results-title">Findings &amp; evidence</h2>
+            </div>
+            <div class="report-actions">
+              <button id="copy-summary-button" class="button button-quiet" type="button" disabled>Copy summary</button>
+              <button id="copy-report-button" class="button button-quiet" type="button" disabled>Copy report</button>
+            </div>
+          </div>
+          <div id="result-feedback" class="result-feedback" role="status" aria-live="polite" hidden></div>
+          <div id="empty-state" class="empty-state">
+            <span class="empty-icon" aria-hidden="true">⌕</span>
+            <h3>Ready when you are</h3>
+            <p>Paste a synthetic or authorized email and run an analysis. Results and provider status will appear here.</p>
+          </div>
+          <div id="analysis-results" class="analysis-results" hidden>
+            <article class="result-section assessment-section">
+              <div class="section-title-row"><h3>Overall assessment</h3><span id="risk-badge" class="severity-badge">—</span></div>
+              <p id="overall-assessment" class="result-copy"></p>
+              <ul id="risk-reasons" class="detail-list"></ul>
+              <p id="recommended-action" class="recommendation"></p>
+            </article>
+            <article class="result-section">
+              <div class="section-title-row"><h3>ML classification</h3><span id="ml-badge" class="severity-badge">—</span></div>
+              <p id="ml-explanation" class="result-copy"></p>
+            </article>
+            <article class="result-section">
+              <div class="section-title-row"><h3>Sender details</h3><span id="sender-status" class="status-tag">—</span></div>
+              <div id="sender-evidence" class="evidence-grid"></div>
+            </article>
+            <article class="result-section">
+              <div class="section-title-row"><h3>Header &amp; authentication findings</h3><span id="header-count" class="count-tag">0</span></div>
+              <p id="forensic-summary" class="result-copy"></p>
+              <div class="evidence-subsection">
+                <h4>SPF / DKIM / DMARC checks</h4>
+                <div id="authentication-evidence" class="finding-list"></div>
+              </div>
+              <div id="header-findings" class="finding-list"></div>
+            </article>
+            <article class="result-section">
+              <div class="section-title-row"><h3>IP addresses</h3><span id="ip-status" class="status-tag">—</span></div>
+              <div id="ip-list" class="finding-list"></div>
+            </article>
+            <article class="result-section">
+              <div class="section-title-row"><h3>Local threat indicators</h3><span id="threat-count" class="count-tag">0</span></div>
+              <p id="reputation-status" class="muted small-copy"></p>
+              <div id="threat-findings" class="finding-list"></div>
+              <div class="evidence-subsection">
+                <h4>Detected URLs <span class="subsection-note">not opened</span></h4>
+                <div id="url-evidence" class="finding-list"></div>
+              </div>
+            </article>
+            <details class="result-section report-section">
+              <summary>Forensic report</summary>
+              <pre id="forensic-report" class="report-text"></pre>
+            </details>
+            <details class="result-section limitations-section">
+              <summary>Limitations and uncertainty</summary>
+              <ul id="limitations" class="detail-list"></ul>
+            </details>
+          </div>
+        </section>
+      </section>
+      <footer class="page-footer">Local prototype · Extracted URLs are displayed as text only and are never opened</footer>
+    </main>
+  </div>
+</body>
+</html>
